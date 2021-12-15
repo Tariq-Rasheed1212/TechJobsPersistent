@@ -16,6 +16,11 @@ namespace TechJobsPersistent.Controllers
     {
         // GET: /<controller>/
         private JobDbContext context;
+
+        public EmployerController(JobDbContext dbContext)
+            {
+            context = dbContext;
+            }
         public IActionResult Index()
         {
             List<Employer> employers = context.Employers.ToList();

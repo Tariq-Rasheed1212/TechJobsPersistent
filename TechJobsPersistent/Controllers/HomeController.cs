@@ -32,12 +32,49 @@ namespace TechJobsPersistent.Controllers
         [HttpGet("/Add")]
         public IActionResult AddJob()
         {
-            return View();
+            AddJobViewModel addJobViewModel = new AddJobViewModel(context.Employers.ToList(), context.Skills.ToList());
+            return View(addJobViewModel);
         }
 
-        public IActionResult ProcessAddJobForm()
+        [HttpPost("/Add")]
+        public IActionResult ProcessAddJobForm(AddJobViewModel addJobViewModel, string[] selectedSkills)
         {
-            return View();
+            if (ModelState.IsValid)
+                {
+                Job job = new Job
+                    {
+                    Name = addJobViewModel.Name,
+                    EmployerId = addJobViewModel.EmployerId,
+                    Employer = context.Employers.Find(addJobViewModel.EmployerId)
+                    };
+
+                foreach (var item in selectedSkills)
+                    {
+                    int skillId = int.Parse(item);
+                    int jobId = newJob.Id;
+
+                    List<JobSkill> existingTableItems = context.JobSkills
+                        .Where(js => js.JobId == jobId)
+                        .Where(js => js.SkillId == skillId)
+                        .ToList();
+
+                    if (existingTableItems.Count == 0)
+                        {
+                        JobSkill jobSkill = new JobSkill
+                            {
+                            JobId = jobId,
+                            Job = newJob,
+                            SkillId = skillId,
+                            Skill = context.Skills.Find(skillId)
+                            };
+                        context.JobSkills.Add(jobSkill);
+                        }
+                    }
+                context.Jobs.Add(job);
+                context.SaveChanges();
+                return Redirect("Index");
+                }
+            return View("Add", addJobViewModel);
         }
 
         public IActionResult Detail(int id)
